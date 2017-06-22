@@ -6,7 +6,6 @@ namespace WalkToDo;
 
 use pocketmine\plugin\PluginBase;
 
-use pocketmine\level\Level;
 use pocketmine\level\Position;
 
 use WalkToDo\WalkToDoBlock;
@@ -36,33 +35,25 @@ class WalkToDo extends PluginBase
     
   }
 
-  
-  public function getCfg()
-  {
-
-    return $this->cfg;
-
-  }
-
 
   public function parseBlocks()
   {
 
-    foreach( $this->cfg->get("blocks") as $block )
+    foreach( $this->cfg->get( "blocks" ) as $block )
     {
 
         $coords = $block["x"] . ":" . $block["y"] . ":" . $block["z"] . ":" . $block["level"];
-        $this->blocks[$coords] = new WalkToDoBlock( new Position( $block["x"], $block["y"], $block["z"], $this->getServer()->getLevelByName( $block["level"] ) ), $block["commands"], $this, count($this->blocks) ); // WalkToDoBlock class takes an instance of Position, an array of commands, an instance of WalkToDo, and an id
+        $this->blocks[$coords] = new WalkToDoBlock( new Position( $block["x"], $block["y"], $block["z"], $this->getServer()->getLevelByName( $block["level"] ) ), $block["commands"], $this ); // WalkToDoBlock class takes an instance of Position, an array of commands, and an instance of WalkToDo
 
     }
 
   }
 
 
-  public function getBlock( $x, $y, $z, Level $level )
+  public function getBlock( Position $pos )
   {
 
-    $coords = $x . ":" . $y . ":" . $z . ":", $level->getName();
+    $coords = $pos->getX() . ":" . $pos->getY() . ":" . $pos->getZ() . ":" . $pos->getLevel()->getName();
     return isset( $this->blocks[$coords] ) ? $this->blocks[$coords] : false; // returns the WalkToDo block if it exists, otherwise false
 
   }
@@ -75,15 +66,15 @@ class WalkToDo extends PluginBase
     if( ! isset( $this->blocks[$coords] ) )
     {
 
-        $this->blocks[$coords] = new WalkToDoBlock( $pos, $commands, $this, count( $this->blocks ) );
+        $this->blocks[$coords] = new WalkToDoBlock( $pos, $commands, $this );
         
-        $blocks = $this->cfg->get("blocks");
-        $blocks[$this->blocks[$coords]->getId()] = array(
-            "x" => $pos->getX();
-            "y" => $pos->getY();
-            "z" => $pos->getZ();
-            "level" => $pos->getLevel()->getName();
-            "commands" => $commands;
+        $blocks = $this->cfg->get( "blocks" );
+        $blocks[$coords] = array(
+            "x" => $pos->getX(),
+            "y" => $pos->getY(),
+            "z" => $pos->getZ(),
+            "level" => $pos->getLevel()->getName(),
+            "commands" => $commands
         );
         $this->cfg->set( "blocks", $blocks );
         $this->cfg->save();
@@ -99,7 +90,18 @@ class WalkToDo extends PluginBase
   }
 
 
-  public function removeBlock(  )
+  public function removeBlock( Position $pos )
+  {
+
+    $coords = $pos->getX() . ":" . $pos->getY() . ":" . $pos->getZ() . ":" . $pos->getLevel()->getName();
+    unset( $this->blocks[$coords] );
+
+    $blocks = $this->cfg->get( "blocks" );
+    unset( $blocks[$coords] );
+    $this->cfg->set( "blocks", $blocks );
+    $this->cfg->save();
+
+  }
   
 }
 
