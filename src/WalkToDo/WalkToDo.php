@@ -16,6 +16,7 @@ class WalkToDo extends PluginBase
   
   public $cfg;
   public $blocks;
+  public $sessions;
   
   
   public function onEnable()
@@ -27,11 +28,13 @@ class WalkToDo extends PluginBase
     $this->getServer()->getPluginManager()->registerEvents( new \WalkToDo\EventListener( $this ), $this );
 
     // set command executors
-    $this->getCommand( "walktodo" )->setExecutor( new \Command\WalkToDoCommand( $this ), $this );
+    $this->getCommand( "walktodo" )->setExecutor( new \command\WalkToDoCommand( $this ), $this );
 
     // get all the blocks in $this->blocks
     $this->blocks = array();
     $this->parseBlocks();
+
+    $this->sessions = array();
     
   }
 
@@ -45,6 +48,8 @@ class WalkToDo extends PluginBase
         $coords = $block["x"] . ":" . $block["y"] . ":" . $block["z"] . ":" . $block["level"];
         $this->blocks[$coords] = new WalkToDoBlock( new Position( $block["x"], $block["y"], $block["z"], $this->getServer()->getLevelByName( $block["level"] ) ), $block["commands"], $this ); // WalkToDoBlock class takes an instance of Position, an array of commands, and an instance of WalkToDo
 
+        return true;
+
     }
 
   }
@@ -54,7 +59,7 @@ class WalkToDo extends PluginBase
   {
 
     $coords = $pos->getX() . ":" . $pos->getY() . ":" . $pos->getZ() . ":" . $pos->getLevel()->getName();
-    return isset( $this->blocks[$coords] ) ? $this->blocks[$coords] : false; // returns the WalkToDo block if it exists, otherwise false
+    return isset( $this->blocks[$coords] ) ? $this->blocks[$coords] : false; // returns the WalkToDoBlock instance if it exists, otherwise false
 
   }
 
@@ -79,6 +84,8 @@ class WalkToDo extends PluginBase
         $this->cfg->set( "blocks", $blocks );
         $this->cfg->save();
 
+        return true;
+
     }
     else
     {
@@ -101,8 +108,26 @@ class WalkToDo extends PluginBase
     $this->cfg->set( "blocks", $blocks );
     $this->cfg->save();
 
+    return true;
+
   }
-  
+
+
+  public function updateBlock( Position $pos, array $commands )
+  {
+
+    $coords = $pos->getX() . ":" . $pos->getY() . ":" . $pos->getZ() . ":" . $pos->getLevel()->getName();
+    $this->blocks[$coords]->setCommands( $commands );
+
+    $blocks = $this->cfg->get( "blocks" );
+    $blocks[$coords]["commands"] = $commands;
+    $this->cfg->set( "blocks", $blocks );
+    $this->cfg->save();
+
+    return true;
+
+  }
+
 }
 
 
