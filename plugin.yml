@@ -8,6 +8,7 @@ commands:
   walktodo:
     description: "Adds a new WalkToDo block"
     permission: walktodo.command
+    aliases: [wtd, walktd, wtodo]
     
 permissions:
   walktodo:
