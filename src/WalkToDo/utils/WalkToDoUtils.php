@@ -13,4 +13,12 @@ class WalkToDoUtils
 
     }
 
+
+    public static function arr_slice( array &$array, $offset, $length, $preserve_keys = true )
+    {
+
+        return array_slice( $array, $offset, $length, $preserve_keys );
+
+    }
+
 }

@@ -11,6 +11,7 @@ use pocketmine\command\CommandExecutor;
 use pocketmine\utils\TextFormat;
 
 use WalkToDo\WalkToDo;
+use WalkToDo\utils\WalkToDoUtils;
 
 
 class WalkToDoCommand implements CommandExecutor
@@ -49,11 +50,12 @@ class WalkToDoCommand implements CommandExecutor
                 if( $arg === "|" )
                 {
 
-                    $this->plugin->sessions[$sender->getName()][] = implode( " ", array_slice( &$args, 0, $key + 1 ) );
+                    $command = WalkToDoUtils::arr_slice( $args, 0, $key + 1 );
+                    $this->plugin->sessions[$sender->getName()][] = implode( " ", $command );
 
                 }
 
-                $this->plugin->sessions[$sender->getName()] = implode( " ", array_slice( &$args, 0, count( $args ) ) );
+                $this->plugin->sessions[$sender->getName()] = implode( " ", array_slice( $args, 0, count( $args ) ) );
 
             }
 
